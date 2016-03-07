@@ -1,0 +1,21 @@
+#!/bin/bash
+
+screen -d -m -S obe01 obecli
+sleep 1
+screen -p 0 -S obe01 -X stuff $'set obe opts system-type=lowestlatency\012'
+screen -p 0 -S obe01 -X stuff $'set input decklink\012'
+screen -p 0 -S obe01 -X stuff $'set input opts video-format=1080i60\012'
+screen -p 0 -S obe01 -X stuff $'probe input\012'
+sleep 2
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:intra-refresh=1\012'
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:bitrate=10000\012'
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:threads=0,format=avc,level=41,profile=high,aspect-ratio=16:9\012'
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:vbv-maxrate=8000\012'
+
+screen -p 0 -S obe01 -X stuff $'set stream opts 1:bitrate=224,format=mp2\012'
+
+screen -p 0 -S obe01 -X stuff $'set muxer opts ts-muxrate=10000000,ts-type=generic,cbr=1\012'
+screen -p 0 -S obe01 -X stuff $'set muxer opts pcr-period=40\012'
+screen -p 0 -S obe01 -X stuff $'set outputs 1\012'
+screen -p 0 -S obe01 -X stuff $'set output opts 0:target=udp://204.13.46.48:9710?ttl=5&miface=eth0\012'
+screen -p 0 -S obe01 -X stuff $'start\012'
