@@ -1,0 +1,35 @@
+#!/bin/bash
+
+screen -d -m -S obe01 obecli
+sleep 1
+screen -p 0 -S obe01 -X stuff $'set obe opts system-type=lowestlatency\012'
+screen -p 0 -S obe01 -X stuff $'set input decklink\012'
+screen -p 0 -S obe01 -X stuff $'set input opts video-format=1080i60\012'
+screen -p 0 -S obe01 -X stuff $'probe input\012'
+sleep 2
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:intra-refresh=1\012'
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:threads=0,format=avc,level=41,profile=high,aspect-ratio=16:9\012'
+
+screen -p 0 -S obe01 -X stuff $'set stream opts 1:sdi-audio-pair=1\012'
+
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:keyint=30,vbv-maxrate=10000\012'
+
+screen -p 0 -S obe01 -X stuff $'set stream opts 1:format=mp2,lang=eng,audio-type=undefined,mp2-mode=stereo\012'
+
+screen -p 0 -S obe01 -X stuff $'set muxer opts ts-muxrate=12000000,ts-type=dvb,cbr=1\012'
+
+
+screen -p 0 -S obe01 -X stuff $'set muxer opts pcr-period=40\012'
+
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:pid=1001\012'
+screen -p 0 -S obe01 -X stuff $'set stream opts 1:pid=1002\012'
+
+screen -p 0 -S obe01 -X stuff $'set muxer opts ts-id=123,program-num=100,pmt-pid=1000,pcr-pid=1001,service-name=PMW_1,provider-name=Polaris\012'
+
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:bitrate=10000\012'
+screen -p 0 -S obe01 -X stuff $'set stream opts 1:bitrate=192\012'
+
+screen -p 0 -S obe01 -X stuff $'set outputs 1\012'
+screen -p 0 -S obe01 -X stuff $'set output opts 0:target=udp://204.13.46.48:9710?ttl=5&miface=eth0\012'
+
+screen -p 0 -S obe01 -X stuff $'start\012'
