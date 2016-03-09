@@ -1,0 +1,43 @@
+#!/bin/bash
+
+screen -d -m -S obe01 obecli
+sleep 1
+screen -p 0 -S obe01 -X stuff $'set obe opts system-type=lowestlatency\012'
+screen -p 0 -S obe01 -X stuff $'set input decklink\012'
+screen -p 0 -S obe01 -X stuff $'set input opts video-format=1080i60\012' # 1080i
+screen -p 0 -S obe01 -X stuff $'probe input\012'
+sleep 2
+screen -p 0 -S obe01 -X stuff $'add stream 2:type=audio\012'
+screen -p 0 -S obe01 -X stuff $'set stream opts 1:sdi-audio-pair=1\012'
+screen -p 0 -S obe01 -X stuff $'set stream opts 2:sdi-audio-pair=2\012'
+
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:threads=0,format=avc,level=41\012'
+screen -p 0 -S obe01 -X stuff $'set stream opts 1:format=mp2\012'
+screen -p 0 -S obe01 -X stuff $'set stream opts 2:format=mp2\012'
+screen -p 0 -S obe01 -X stuff $'set muxer opts ts-muxrate=13770000,ts-type=generic,cbr=1\012'
+
+
+# PID Settings
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:pid=512\012' # Video
+screen -p 0 -S obe01 -X stuff $'set stream opts 1:pid=4112\012' # Audio1
+screen -p 0 -S obe01 -X stuff $'set stream opts 2:pid=4128\012' # Audio2
+screen -p 0 -S obe01 -X stuff $'set muxer opts ts-id=1,program-num=1,pmt-pid=256,pcr-pid=512\012' # Transport Stream
+
+# Latency Settings
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:lookahead=10,keyint=30,bframes=0\012'
+screen -p 0 -S obe01 -X stuff $'set muxer opts pcr-period=40\012'
+
+
+
+
+# Bitrate Settings
+screen -p 0 -S obe01 -X stuff $'set stream opts 0:vbv-maxrate=11000,bitrate=10000\012' # Video
+screen -p 0 -S obe01 -X stuff $'set stream opts 1:bitrate=128\012' # Audio1
+screen -p 0 -S obe01 -X stuff $'set stream opts 2:bitrate=128\012' # Audio2
+
+# Multicast Output
+screen -p 0 -S obe01 -X stuff $'set outputs 1\012'
+screen -p 0 -S obe01 -X stuff $'set output opts 0:target=udp://204.13.46.48:9710?miface=eth0,type=udp\012'
+
+# Start
+screen -p 0 -S obe01 -X stuff $'start\012'
